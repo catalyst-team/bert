@@ -1,0 +1,11 @@
+catalyst==19.10
+lz4==2.2.1
+pandas==0.25.1
+pyarrow==0.14.1
+tensorboard==2.0.0
+tensorboardX==1.8
+tensorflow==2.0.0
+torch==1.2.0
+torchvision==0.4.0
+transformers==2.0.0
+wandb==0.8.12

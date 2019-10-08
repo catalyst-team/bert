@@ -1,0 +1,6 @@
+*.pyc
+/.venv
+.eggs
+*.egg-info
+/input
+/logs
