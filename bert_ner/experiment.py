@@ -1,12 +1,20 @@
+from typing import Dict
 from collections import OrderedDict
 
 import pandas as pd
 from catalyst.dl import ConfigExperiment
 
-from bert_ner.dataset import KeyphrasesDataset
+from bert_ner.dataset import KeyphrasesDataset, StateKeys
 
 
 class Experiment(ConfigExperiment):
+    def __init__(self, config: Dict, keys: StateKeys):
+        super().__init__(config)
+        self.keys = keys
+
+    def get_transforms(self, stage: str = None, mode: str = None):
+        return []
+
     def get_datasets(self, stage: str, **kwargs):
         datasets = OrderedDict()
 
@@ -21,8 +29,16 @@ class Experiment(ConfigExperiment):
             orient='records',
         )
 
-        trainset = KeyphrasesDataset(train['content'], train['tagged_attributes'])
-        testset = KeyphrasesDataset(val['content'], val['tagged_attributes'])
+        trainset = KeyphrasesDataset(
+            train['content'],
+            train['tagged_attributes'],
+            self.keys,
+        )
+        testset = KeyphrasesDataset(
+            val['content'],
+            val['tagged_attributes'],
+            self.keys,
+        )
 
         datasets['train'] = trainset
         datasets['valid'] = testset

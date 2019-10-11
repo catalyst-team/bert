@@ -2,13 +2,12 @@
 import logging
 
 from catalyst.dl.callbacks import OptimizerCallback
-from transformers import AdamW, WarmupLinearSchedule, DistilBertConfig
-from transformers.optimization import AdamW, WarmupLinearSchedule
+from transformers import AdamW, WarmupLinearSchedule
 
 from bert_ner.experiment import Experiment
 from bert_ner.model import DistilBertForTokenClassification
 from bert_ner.catalyst_ext import (BertSupervisedRunner, BertCrossEntropyLoss,
-                                   BertCriterionCallback)
+                                   BertCriterionCallback, StateKeys)
 
 # experiment setup
 CONFIG = dict(stages=dict(
@@ -20,12 +19,14 @@ NUM_CLASSES = 2
 NUM_EPOCHS = 100
 LOGDIR = "./logs/"
 
+STATE_KEYS = StateKeys('input_ids', 'attention_mask', 'targets', 'logits')
+
 
 def main():
     logging.getLogger('transformers.tokenization_utils').setLevel(logging.FATAL)
 
     # data
-    loaders = Experiment(CONFIG).get_loaders('stage_1')
+    loaders = Experiment(CONFIG, STATE_KEYS).get_loaders('stage_1')
 
     # model, criterion, optimizer
     model = DistilBertForTokenClassification.from_pretrained(
@@ -41,7 +42,7 @@ def main():
     )
 
     # model runner
-    runner = BertSupervisedRunner()
+    runner = BertSupervisedRunner(STATE_KEYS)
 
     # model training
     runner.train(
@@ -53,7 +54,7 @@ def main():
         logdir=LOGDIR,
         num_epochs=NUM_EPOCHS,
         callbacks=[
-            BertCriterionCallback(),
+            BertCriterionCallback(STATE_KEYS),
             OptimizerCallback(accumulation_steps=4),
             # SchedulerCallback(reduce_metric='accuracy01'),
         ],
