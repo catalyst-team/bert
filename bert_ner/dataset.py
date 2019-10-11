@@ -1,23 +1,28 @@
+from typing import Mapping
+
 import torch
 from torch.utils.data import Dataset
-
 from transformers import DistilBertTokenizer
+
+from bert_ner.catalyst_ext import StateKeys
 
 
 class KeyphrasesDataset(Dataset):
-    def __init__(self, texts, keyphrases, max_seq_length=512):
+    def __init__(self, texts, keyphrases, keys: StateKeys, max_seq_length=512):
         self.texts = texts
         self.keyphrases = keyphrases
+        self.keys = keys
+        self.max_seq_length = max_seq_length
+
         self.tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
         self.sep_vid = self.tokenizer.vocab['[SEP]']
         self.cls_vid = self.tokenizer.vocab['[CLS]']
         self.pad_vid = self.tokenizer.vocab['[PAD]']
-        self.max_seq_length = max_seq_length
 
     def __len__(self):
         return len(self.texts)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Mapping[str, torch.Tensor]:
         def _find_inclusions(list_a, list_b):
             return [x for x in range(len(list_a)) if list_a[x:x + len(list_b)] == list_b]
 
@@ -51,4 +56,8 @@ class KeyphrasesDataset(Dataset):
         labels = torch.zeros_like(x_tensor)
         labels[y_positions] = 1
 
-        return x_tensor, labels, attention_mask
+        return {
+            self.keys.input_ids: x_tensor,
+            self.keys.targets: labels,
+            self.keys.attention_mask: attention_mask
+        }

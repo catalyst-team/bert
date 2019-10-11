@@ -1,24 +1,28 @@
 from typing import Mapping, Any
+from collections import namedtuple
 
 from catalyst.dl import SupervisedRunner
 
+StateKeys = namedtuple('StateKeys',
+                       ['input_ids', 'attention_mask', 'targets', 'model_output'])
+
 
 class BertSupervisedRunner(SupervisedRunner):
-    def _batch2device(self, batch: Mapping[str, Any], device):
-        assert len(batch) == 3
-        batch = {
-            self.input_key: batch[0],
-            self.target_key: batch[1],
-            'attention_mask': batch[2],
-        }
-        batch = super()._batch2device(batch, device)
-        return batch
+    def __init__(self, keys: StateKeys, **kwargs):
+        kwargs.update(
+            dict(
+                input_key=keys.input_ids,
+                input_target_key=keys.targets,
+                output_key=keys.model_output,
+            ))
+        super().__init__(**kwargs)
 
-    def forward(self, batch):
-        """
-        Should not be called directly outside of runner.
-        If your model has specific interface, override this method to use it
-        """
-        output = self.model(batch[self.input_key], batch['attention_mask'])
+        self.keys = keys
+
+    def forward(self, batch: Mapping[str, Any]):
+        output = self.model(
+            batch[self.keys.input_ids],
+            batch[self.keys.attention_mask],
+        )
         output = self._process_output(output)
         return output
