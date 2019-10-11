@@ -39,6 +39,7 @@ setup(
     entry_points={
         'console_scripts': [
             'run-train = bert_ner.train:main',
+            'run-inference = bert_ner.inference:main',
         ],
     },
     test_suite='setup.discover_tests',

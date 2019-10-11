@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+from typing import Tuple
 import logging
 
+import torch.nn as nn
 from catalyst.dl.callbacks import OptimizerCallback
 from transformers import AdamW, WarmupLinearSchedule
 
@@ -15,34 +17,46 @@ CONFIG = dict(stages=dict(
     stage_1=dict(),
 ))
 
-NUM_CLASSES = 2
 NUM_EPOCHS = 100
 LOGDIR = "./logs/"
 
-STATE_KEYS = StateKeys('input_ids', 'attention_mask', 'targets', 'logits')
+
+def get_runner() -> Tuple[BertSupervisedRunner, StateKeys]:
+    state_keys = StateKeys('input_ids', 'attention_mask', 'targets', 'logits')
+    return BertSupervisedRunner(state_keys), state_keys
+
+
+def get_model(num_classes=2) -> Tuple[nn.Module, nn.Module]:
+    model = DistilBertForTokenClassification.from_pretrained(
+        'distilbert-base-uncased',
+        num_classes=num_classes,
+    )
+    criterion = BertCrossEntropyLoss(num_classes)
+    return model, criterion
 
 
 def main():
     logging.getLogger('transformers.tokenization_utils').setLevel(logging.FATAL)
 
+    # model, criterion
+    model, criterion = get_model()
+    # model runner
+    runner, state_keys = get_runner()
     # data
-    loaders = Experiment(CONFIG, STATE_KEYS).get_loaders('stage_1')
+    loaders = Experiment(CONFIG, state_keys).get_loaders('stage_1')
 
-    # model, criterion, optimizer
-    model = DistilBertForTokenClassification.from_pretrained(
-        'distilbert-base-uncased',
-        num_classes=NUM_CLASSES,
+    # optimizer
+    optimizer = AdamW(
+        model.parameters(),
+        lr=5e-5,
+        weight_decay=0.01,
+        correct_bias=False,
     )
-    criterion = BertCrossEntropyLoss(NUM_CLASSES)
-    optimizer = AdamW(model.parameters(), lr=5e-5, weight_decay=0.01, correct_bias=False)
     scheduler = WarmupLinearSchedule(
         optimizer,
         warmup_steps=500,
         t_total=3000,
     )
-
-    # model runner
-    runner = BertSupervisedRunner(STATE_KEYS)
 
     # model training
     runner.train(
@@ -54,7 +68,7 @@ def main():
         logdir=LOGDIR,
         num_epochs=NUM_EPOCHS,
         callbacks=[
-            BertCriterionCallback(STATE_KEYS),
+            BertCriterionCallback(state_keys),
             OptimizerCallback(accumulation_steps=4),
             # SchedulerCallback(reduce_metric='accuracy01'),
         ],

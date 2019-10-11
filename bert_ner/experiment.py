@@ -18,16 +18,8 @@ class Experiment(ConfigExperiment):
     def get_datasets(self, stage: str, **kwargs):
         datasets = OrderedDict()
 
-        train = pd.read_json(
-            './input/train.jsonl',
-            lines=True,
-            orient='records',
-        )
-        val = pd.read_json(
-            './input/test.jsonl',
-            lines=True,
-            orient='records',
-        )
+        train = pd.read_json('./input/train.jsonl', lines=True)
+        val = pd.read_json('./input/test.jsonl', lines=True)
 
         trainset = KeyphrasesDataset(
             train['content'],
