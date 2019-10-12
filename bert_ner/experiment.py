@@ -4,11 +4,12 @@ from collections import OrderedDict
 import pandas as pd
 from catalyst.dl import ConfigExperiment
 
-from bert_ner.dataset import KeyphrasesDataset, StateKeys
+from bert_ner.catalyst_ext import StateKeys
+from bert_ner.dataset import KeyphrasesDataset
 
 
 class Experiment(ConfigExperiment):
-    def __init__(self, config: Dict, keys: StateKeys):
+    def __init__(self, config: Dict, keys: StateKeys = StateKeys.default()):
         super().__init__(config)
         self.keys = keys
 

@@ -1,14 +1,12 @@
 from typing import Mapping, Any
-from collections import namedtuple
 
 from catalyst.dl import SupervisedRunner
 
-StateKeys = namedtuple('StateKeys',
-                       ['input_ids', 'attention_mask', 'targets', 'model_output'])
+from bert_ner.catalyst_ext import StateKeys
 
 
 class BertSupervisedRunner(SupervisedRunner):
-    def __init__(self, keys: StateKeys, **kwargs):
+    def __init__(self, keys: StateKeys = StateKeys.default(), **kwargs):
         kwargs.update(
             dict(
                 input_key=keys.input_ids,

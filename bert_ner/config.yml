@@ -1,0 +1,47 @@
+model_params:
+  model: BertModel
+  model_type: distilbert/token_class
+  num_classes: &num_classes 2
+
+args:
+  expdir: 'bert_ner'
+  logdir: './logs/'
+
+stages:
+  data_params:
+    batch_size: 8
+    num_workers: 1
+
+  state_params:
+    main_metric: &reduce_metric loss
+    minimize_metric: True
+
+  criterion_params:
+    criterion: BertCrossEntropyLoss
+    num_classes: *num_classes
+
+  optimizer_params:
+    optimizer: TransformersAdamW
+    lr: 0.00005
+    weight_decay: 0.01
+    correct_bias: False
+
+  scheduler_params:
+    scheduler: WarmupLinearSchedule
+    warmup_steps: 500
+    t_total: 3000
+
+  callbacks_params:
+    loss:
+      callback: BertCriterionCallback
+    optimizer:
+      callback: OptimizerCallback
+    scheduler:
+      callback: SchedulerCallback
+      reduce_metric: *reduce_metric
+    saver:
+      callback: CheckpointCallback
+
+  stage1:
+    state_params:
+      num_epochs: 100
