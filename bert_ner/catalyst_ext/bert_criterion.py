@@ -7,9 +7,9 @@ from .runner import StateKeys
 
 
 class BertCrossEntropyLoss(nn.CrossEntropyLoss):
-    def __init__(self, num_classes, **kwargs):
+    def __init__(self, **kwargs):
+        self.num_classes = kwargs.pop('num_classes')
         super().__init__(**kwargs)
-        self.num_classes = num_classes
 
     # pylint: disable=arguments-differ
     def forward(self, logits, attention_mask, target):
@@ -24,7 +24,7 @@ class BertCrossEntropyLoss(nn.CrossEntropyLoss):
 
 
 class BertCriterionCallback(_CriterionCallback):
-    def __init__(self, keys: StateKeys, **kwargs):
+    def __init__(self, keys: StateKeys = StateKeys.default(), **kwargs):
         super().__init__(**kwargs)
         self.keys = keys
 

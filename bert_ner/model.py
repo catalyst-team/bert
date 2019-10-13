@@ -2,10 +2,7 @@ import torch.nn as nn
 
 from transformers.modeling_distilbert import DistilBertPreTrainedModel, DistilBertModel
 
-from catalyst.contrib import registry
 
-
-@registry.Model
 class DistilBertForTokenClassification(DistilBertPreTrainedModel):
     def __init__(self, config, num_classes=None):
         super().__init__(config)

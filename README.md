@@ -14,7 +14,7 @@ A barebones (Distil)BERT pipeline for token classification tasks driven by [cata
 - Possibly modify [dataset.py](bert_ner/dataset.py) to suit your data preprocessing needs. The pipeline makes assumption that there are two classes of tokens.
 - Start training your model
 ```
-run-train
+catalyst-dl run -C bert_ner/config.yml
 ```
 
 ## Monitoring
