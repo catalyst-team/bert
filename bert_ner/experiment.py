@@ -1,5 +1,6 @@
 from typing import Dict
 from collections import OrderedDict
+import logging
 
 import pandas as pd
 from catalyst.dl import ConfigExperiment
@@ -12,6 +13,8 @@ class Experiment(ConfigExperiment):
     def __init__(self, config: Dict, keys: StateKeys = StateKeys.default()):
         super().__init__(config)
         self.keys = keys
+
+        logging.getLogger('transformers.tokenization_utils').setLevel(logging.FATAL)
 
     def get_transforms(self, stage: str = None, mode: str = None):
         return []
