@@ -36,6 +36,7 @@ stages:
       callback: BertCriterionCallback
     optimizer:
       callback: OptimizerCallback
+      accumulation_steps: 4
     scheduler:
       callback: SchedulerCallback
       reduce_metric: *reduce_metric
