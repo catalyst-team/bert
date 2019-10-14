@@ -1,5 +1,10 @@
+[![Build Status](https://travis-ci.com/catalyst-team/bert.svg?branch=master)](https://travis-ci.com/catalyst-team/bert)
+[![Telegram](./pics/telegram.svg)](https://t.me/catalyst_team)
+[![Gitter](https://badges.gitter.im/catalyst-team/community.svg)](https://gitter.im/catalyst-team/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Slack](./pics/slack.svg)](https://opendatascience.slack.com/messages/CGK4KQBHD)
+[![Donate](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/third_party_pics/patreon.png)](https://www.patreon.com/catalyst_team)
 
-# bert-ner-catalyst-starter
+# Catalyst.Bert
 
 A barebones (Distil)BERT pipeline for token classification tasks driven by [catalyst](https://github.com/catalyst-team/catalyst).
 
